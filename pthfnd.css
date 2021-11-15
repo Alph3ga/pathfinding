@@ -17,7 +17,7 @@ html{
 }
 
 body{
-	background: linear-gradient(145deg, #1cc7d6, #00c4cd, #00c1c3, #00bdb8, #00baad, #00b6a1, #00b295, #00ae88, #00aa7b, #00a56e, #04a160, #1e9c52);
+	background-image: url("gradient.svg");
 	height: 100%;
 	background-repeat: no-repeat;
 }
