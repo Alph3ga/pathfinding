@@ -1,0 +1,27 @@
+.main-font{
+	font-family: "Abril Fatface", "Lucida Bright", Monospace;
+}
+
+.second-font{
+	font-family: "Roboto Mono", Helvetica, Monospace;
+}
+
+h1.main-font{
+	font-size: 5vw;
+	text-align: center;
+	margin: 0;
+}
+
+html{
+	height:100%
+}
+
+body{
+	background: linear-gradient(145deg, #1cc7d6, #00c4cd, #00c1c3, #00bdb8, #00baad, #00b6a1, #00b295, #00ae88, #00aa7b, #00a56e, #04a160, #1e9c52);
+	height: 100%;
+	background-repeat: no-repeat;
+}
+
+#drawArea{
+	width: 90vw;
+}
