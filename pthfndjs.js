@@ -48,15 +48,123 @@ function drawGrid(){
 }
 
 //draw the things into the grid now
+function Point(x, y){
+	this.x=x;
+	this.y=y;
+}
+
+var start, end;
+
 function drawThis(i){
 	document.getElementById('b'+(drawWhat+3)).classList.remove("activeButton");
 	drawWhat=i; //0 for start, 1 for end, 2 for obstacle
 	document.getElementById('b'+(drawWhat+3)).classList.add("activeButton");
 }
+var isDragging, oldP;
+
+Canvas.addEventListener("click", markNodes);
+Canvas.addEventListener("mousedown", function (){isDragging=true; oldP= new Point(Math.floor(event.offsetX/sqsize), Math.floor(event.offsetY/sqsize));});
+Canvas.addEventListener("mousemove", dragDraw);
+Canvas.addEventListener("mouseup", function (){isDragging=false;});
+Canvas.addEventListener("mouseleave", function (){isDragging=false;});
+
+class PSet{
+	constructor(){
+		this.arr=new Array();
+		this.size=0;
+	}
+	
+	add(p){
+		if(!this.has(p)){this.arr.push(p); this.size++;}
+	}
+	
+	has(p){
+		for(var px of this.arr){
+			if((px.x == p.x) && (px.y == p.y)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	remove(p){
+		for(let i=0; i<this.arr.length; i++){
+			if(this.arr[i].x==p.x && this.arr[i].y==p.y){
+				let t=this.arr[this.arr.length-1];
+				this.arr[this.arr.length-1]=this.arr[i];
+				this.arr[i]=t;
+				this.arr.pop();
+			}
+		}
+	}
+}
+
+var walls= new PSet();
+
+function markNodes(event){
+	let p= new Point(Math.floor(event.offsetX/sqsize), Math.floor(event.offsetY/sqsize));
+	if(drawWhat==0){
+		start=p;
+	}
+	else if(drawWhat==1){
+		end=p;
+	}
+	else{
+		if(walls.has(p)){walls.remove(p)}
+		else{walls.add(p);}
+	}
+}
+
+function dragDraw(event){
+	if(drawWhat!=2 || !isDragging){return;}
+	let p= new Point(Math.floor(event.offsetX/sqsize), Math.floor(event.offsetY/sqsize));
+    if(oldP.x==p.x && oldP.y==p.y){return;}
+    oldP=p;
+	if(walls.has(p)){walls.remove(p)}
+	else{walls.add(p);}
+}
+
+function drawNodes(){
+	if(start!=null){
+	ctx.fillStyle= "#00FF00";
+	ctx.fillRect(start.x*sqsize, start.y*sqsize, sqsize, sqsize);}
+	if(end!=null){
+	ctx.fillStyle= "#FFFF00";
+	ctx.fillRect(end.x*sqsize, end.y*sqsize, sqsize, sqsize);}
+	ctx.fillStyle= "#000000";
+	for(const p of walls.arr){
+		ctx.fillRect(p.x*sqsize, p.y*sqsize, sqsize, sqsize);
+	}
+}
+
+
+
+//actual A* code
+
+function Node(_walkable, _pos){
+	this.walkable=_walkable;
+	this.pos=_pos;
+}
+
+var grid;
+function processGrid(){
+	grid= new Array();
+	let arr;
+	for(let x=0; x<nboxes; x++){
+		arr= new Array();
+		for(let y=0; y<(nboxes*4)/9; y++){
+			p= new Point(x, y);
+			arr.push(new Node(!(walls.has(p)), p));
+		}
+		grid.push(arr);
+	}
+}
+
 
 
 function draw(){
 	drawGrid();
+	drawNodes();
 }
 
 setInterval(draw, 33);
