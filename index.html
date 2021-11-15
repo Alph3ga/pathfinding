@@ -10,8 +10,17 @@
   <body>
     <h1 class="main-font">PATHFINDER<h1>
 	<div id="canvasDiv">
+	<div id="toolBar">
+	<button onclick="drawRes(0)" class="resButton">16&#x00D7;12</button>
+	<button onclick="drawRes(1)" class="resButton">40&#x00D7;30</button>
+	<button onclick="drawRes(2)" class="resButton">72&#x00D7;54</button>
+	<button id="simulate" class="toolButton">Simulate</button>
+	<button id="wall" class="toolButton">Obstacle</button>
+	<button id="endSelect" class="toolButton">End Point</button>
+	<button id="startSelect" class="toolButton">Start Point</button>
+	</div>
 	<canvas id="drawArea">Sorry your browser doesnt support html Canvas</canvas>
-	<div>
-	<p id="howTo" class="other-font">this is how you use this</p>
+	</div>
+	<p id="howTo" class="second-font">this is how you use this</p>
   </body>
 </html>
