@@ -1,15 +1,16 @@
 //Inititializing the global vars here
 var Canvas= document.getElementById("drawArea");
 var ctx= Canvas.getContext("2d");
-var width, res, sqsize, nboxes, drawWhat=0;
+var width, res, sqsize, nboxes, drawWhat=0, solved=false;
 res=0;
+var path= new Array();
 
 //init
 document.getElementById('b0').classList.add("activeButton");
 document.getElementById('b3').classList.add("activeButton");
 
 //this will handle any resizing of the canvas, it is called onResize by body
-function handleSize(){
+function handleSize(){//CHANGE START AND END TO BE NULL ON RESIZE IF OUTSIDE BOUNDARY
 	width= (window.innerWidth)*0.9;
 	Canvas.width= width;
 	Canvas.height= (width/9)*4;
@@ -141,13 +142,36 @@ function drawNodes(){
 
 //actual A* code
 
-function Node(_walkable, _pos){
-	this.walkable=_walkable;
-	this.pos=_pos;
+class Node{
+	constructor(_walkable, _pos){
+		this.walkable=_walkable;
+		this.pos=_pos;
+		this.heapIndex=0;
+		this.parentNode=null;
+		this.gCost=0;
+		this.hCost=0;
+	}
+	
+	fCost(){
+		return this.gCost+ this.hCost;
+	}
+	
+	heapParent(){
+		return Math.floor((this.heapIndex-1)/2);
+	}
+	
+	heapLeftChild(){
+		return Math.floor(this.heapIndex*2 +1);
+	}
+	
+	heapRightChild(){
+		return Math.floor(this.heapIndex*2 +2);
+	}
 }
 
 var grid;
 function processGrid(){
+	if(start==null || end==null){alert("mark the start and end");}
 	grid= new Array();
 	let arr;
 	for(let x=0; x<nboxes; x++){
@@ -158,13 +182,97 @@ function processGrid(){
 		}
 		grid.push(arr);
 	}
+	calculatePath();
 }
 
+function getDistance(start, end){
+	let x= Math.abs(start.pos.x-end.pos.x);
+	let y= Math.abs(start.pos.y-end.pos.y);
+	
+	let min= x>y ? y : x;
+	let max= x>y ? x : y;
+	
+	return min*14+(max-min)*10;
+}
+var openL;
+function calculatePath(){
+	let startNode= new Node(true, start);
+	let endNode= new Node(true, end);
+	openL=new Heap((nboxes*nboxes*4)/9);
+	let closedL=new Array();
+	
+	openL.add(startNode);
+	let currentNode;
+	while(openL.size()>0){
+		currentNode= openL.popTop();
+		closedL.push(currentNode);
+		console.log(currentNode.pos);
+		if(equalNodes(currentNode, endNode)){
+			console.log("DONE");
+			retrace(startNode, currentNode);
+			return;
+		}
+		for(let nbor of getNeighbors(currentNode)){
+			if(!nbor.walkable || closedL.includes(nbor)){continue;}
+			
+			let newDistance= currentNode.gCost + getDistance(currentNode, nbor);
+			if(newDistance< nbor.gcost || !openL.contains(nbor)){
+				nbor.gCost=newDistance;
+				nbor.hCost=getDistance(nbor, endNode);
+				nbor.parentNode=currentNode;
+				if(!openL.contains(nbor)){
+					openL.add(nbor);
+			    }
+				else{
+					openL.update(nbor);
+				}
+			}
+		}
+	}
+}
 
+function retrace(start, end){
+	let current= end;
+	path=new Array();
+	while(true){
+		if(equalNodes(current.parentNode, start)){solved=true; return;}
+		path.push(current.parentNode);
+		current=current.parentNode;
+		console.log(current.pos);
+	}
+}
+
+function getNeighbors(n){
+	let nbors= new Array();
+	for(let i=-1; i<=1; i++){
+		for(let j=-1; j<=1; j++){
+			if(i==0 && j==0){continue;}
+			if(n.pos.x+i<0 || n.pos.y+j<0){continue;}
+			if(n.pos.x+i>=nboxes-1 || n.pos.y+j>=((nboxes*4)/9)-1){continue;}
+			nbors.push(grid[n.pos.x+i][n.pos.y+j]);
+		}
+	}
+	return nbors;
+}
+
+function equalNodes(m, n){
+	if(m.pos.x==n.pos.x && m.pos.y==n.pos.y){return true;}
+	else{return false;}
+}
+
+function drawPath(){
+	ctx.fillStyle="#e803fc";
+	for(let i of path){
+		ctx.fillRect(i.pos.x*sqsize, i.pos.y*sqsize, sqsize, sqsize);
+	}
+}
 
 function draw(){
 	drawGrid();
 	drawNodes();
+	if(solved){
+		drawPath();
+	}
 }
 
 setInterval(draw, 33);
