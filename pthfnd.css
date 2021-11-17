@@ -6,6 +6,39 @@
 	font-family: "Roboto Mono", Helvetica, Monospace;
 }
 
+p.second-font{
+	font-size: 1.75vw;
+	text-align: left;
+	padding-left: 1vw;
+}
+
+a{
+	text-decoration:none;
+}
+
+
+#howTo{
+	border-left-style: solid;
+	border-color: #FF0000;
+	border-width: 3px;
+	margin-right: 5vw;
+	margin-left: 5vw;
+}
+
+#credits {
+	text-align: right;
+	padding:0;
+	margin:0;
+}
+
+#credits > p{
+	font-size: 0.7vw;
+	padding-right: 3px;
+	padding-bottom:0;
+	margin: 0;
+	font-family: "Roboto Mono", Helvetica, Monospace;
+}
+
 h1.main-font{
 	font-size: 5vw;
 	text-align: center;
