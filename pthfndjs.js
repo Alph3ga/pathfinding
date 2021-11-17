@@ -1,7 +1,7 @@
 //Inititializing the global vars here
 var Canvas= document.getElementById("drawArea");
 var ctx= Canvas.getContext("2d");
-var width, res, sqsize, nboxes, drawWhat=0, solved=false;
+var width, res, sqsize, nboxes, drawWhat=0, solved=false, animating=true;
 res=0;
 var path= new Array();
 
@@ -20,6 +20,12 @@ function handleSize(){//CHANGE START AND END TO BE NULL ON RESIZE IF OUTSIDE BOU
 	else if(res==2){sqsize=width/72;nboxes=72;}
 }
 handleSize();
+
+function animateToggle(){
+	let sp= document.getElementById("animatespan");
+	if(sp.innerHTML== "\u2713"){sp.innerText= "\u2717"; animating=false;}
+	else{sp.innerText= "\u2713"; animating=true;}
+}
 
 //handling grid resolution now
 
@@ -127,10 +133,10 @@ function dragDraw(event){
 
 function drawNodes(){
 	if(start!=null){
-	ctx.fillStyle= "#00FF00";
+	ctx.fillStyle= "#00f204";
 	ctx.fillRect(start.x*sqsize, start.y*sqsize, sqsize, sqsize);}
 	if(end!=null){
-	ctx.fillStyle= "#FFFF00";
+	ctx.fillStyle= "#D93A25";
 	ctx.fillRect(end.x*sqsize, end.y*sqsize, sqsize, sqsize);}
 	ctx.fillStyle= "#000000";
 	for(const p of walls.arr){
@@ -194,21 +200,27 @@ function getDistance(start, end){
 	
 	return min*14+(max-min)*10;
 }
-var openL;
+
 function calculatePath(){
+	path=new Array();
+	if(animating){
+		calculatePatha();
+	}
+	else{calculatePathna();}
+}
+
+var openL, currentNode, closedL;
+async function calculatePatha(){
 	let startNode= new Node(true, start);
 	let endNode= new Node(true, end);
 	openL=new Heap((nboxes*nboxes*4)/9);
-	let closedL=new Array();
+	closedL=new Array();
 	
 	openL.add(startNode);
-	let currentNode;
 	while(openL.size()>0){
 		currentNode= openL.popTop();
 		closedL.push(currentNode);
-		console.log(currentNode.pos);
 		if(equalNodes(currentNode, endNode)){
-			console.log("DONE");
 			retrace(startNode, currentNode);
 			return;
 		}
@@ -216,7 +228,7 @@ function calculatePath(){
 			if(!nbor.walkable || closedL.includes(nbor)){continue;}
 			
 			let newDistance= currentNode.gCost + getDistance(currentNode, nbor);
-			if(newDistance< nbor.gcost || !openL.contains(nbor)){
+			/**if((newDistance< nbor.gcost) || !openL.contains(nbor)){
 				nbor.gCost=newDistance;
 				nbor.hCost=getDistance(nbor, endNode);
 				nbor.parentNode=currentNode;
@@ -226,19 +238,69 @@ function calculatePath(){
 				else{
 					openL.update(nbor);
 				}
+			}**/
+			if(!openL.contains(nbor)){
+				nbor.gCost=newDistance;
+				nbor.hCost=getDistance(nbor, endNode);
+				nbor.parentNode=currentNode;
+				openL.add(nbor);
+			}
+			else if(newDistance<= nbor.gCost){
+				nbor.gCost=newDistance;
+				nbor.hCost=getDistance(nbor, endNode);
+				nbor.parentNode=currentNode;
+				openL.update(nbor);
+			}
+		}
+		await sleep(75);
+	}
+}
+
+function calculatePathna(){
+	let startNode= new Node(true, start);
+	let endNode= new Node(true, end);
+	openL=new Heap((nboxes*nboxes*4)/9);
+	closedL=new Array();
+	
+	openL.add(startNode);
+	while(openL.size()>0){
+		currentNode= openL.popTop();
+		closedL.push(currentNode);
+		if(equalNodes(currentNode, endNode)){
+			retrace(startNode, currentNode);
+			return;
+		}
+		for(let nbor of getNeighbors(currentNode)){
+			if(!nbor.walkable || closedL.includes(nbor)){continue;}
+			
+			let newDistance= currentNode.gCost + getDistance(currentNode, nbor);
+			if(!openL.contains(nbor)){
+				nbor.gCost=newDistance;
+				nbor.hCost=getDistance(nbor, endNode);
+				nbor.parentNode=currentNode;
+				openL.add(nbor);
+			}
+			else if(newDistance<= nbor.gCost){
+				nbor.gCost=newDistance;
+				nbor.hCost=getDistance(nbor, endNode);
+				nbor.parentNode=currentNode;
+				openL.update(nbor);
 			}
 		}
 	}
 }
 
+function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+   }
+
 function retrace(start, end){
 	let current= end;
 	path=new Array();
 	while(true){
-		if(equalNodes(current.parentNode, start)){solved=true; return;}
+		if(equalNodes(current.parentNode, start)){return;}
 		path.push(current.parentNode);
 		current=current.parentNode;
-		console.log(current.pos);
 	}
 }
 
@@ -248,7 +310,7 @@ function getNeighbors(n){
 		for(let j=-1; j<=1; j++){
 			if(i==0 && j==0){continue;}
 			if(n.pos.x+i<0 || n.pos.y+j<0){continue;}
-			if(n.pos.x+i>=nboxes-1 || n.pos.y+j>=((nboxes*4)/9)-1){continue;}
+			if(n.pos.x+i>nboxes-1 || n.pos.y+j>((nboxes*4)/9)-1){continue;}
 			nbors.push(grid[n.pos.x+i][n.pos.y+j]);
 		}
 	}
@@ -260,7 +322,21 @@ function equalNodes(m, n){
 	else{return false;}
 }
 
+
 function drawPath(){
+	ctx.fillStyle="#70ff99";
+	if(openL!=null){
+	for(let i=0; i<openL.currentItemIndex; i++){
+		ctx.fillRect(openL.arr[i].pos.x*sqsize, openL.arr[i].pos.y*sqsize, sqsize, sqsize);
+	}}
+	ctx.fillStyle="#dddddd";
+	if(closedL!=null)
+	for(let i of closedL){
+		ctx.fillRect(i.pos.x*sqsize, i.pos.y*sqsize, sqsize, sqsize);
+	}
+	ctx.fillStyle="#fff30a";
+	if(currentNode!=null)
+	ctx.fillRect(currentNode.pos.x*sqsize, currentNode.pos.y*sqsize, sqsize, sqsize);
 	ctx.fillStyle="#e803fc";
 	for(let i of path){
 		ctx.fillRect(i.pos.x*sqsize, i.pos.y*sqsize, sqsize, sqsize);
@@ -269,10 +345,8 @@ function drawPath(){
 
 function draw(){
 	drawGrid();
+	drawPath();
 	drawNodes();
-	if(solved){
-		drawPath();
-	}
 }
 
 setInterval(draw, 33);
