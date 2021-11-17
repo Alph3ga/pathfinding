@@ -14,14 +14,26 @@
 	<button onclick="drawRes(0)" class="resButton" id="b0">27&#x00D7;12</button>
 	<button onclick="drawRes(1)" class="resButton" id="b1">54&#x00D7;24</button>
 	<button onclick="drawRes(2)" class="resButton" id="b2">72&#x00D7;32</button>
+	
 	<button id="simulate" class="toolButton" onclick="processGrid()">Simulate</button>
 	<button class="toolButton" id="b5" onclick="drawThis(2)">Obstacle</button>
 	<button class="toolButton" id="b4" onclick="drawThis(1)">End Point</button>
 	<button class="toolButton" id="b3" onclick="drawThis(0)">Start Point</button>
+	<button class="toolButton" id="animateB" onclick="animateToggle()">Animate <span id="animatespan">&check;</span></button> 
 	</div>
 	<canvas id="drawArea">Sorry your browser doesnt support html Canvas</canvas>
 	</div>
-	<p id="howTo" class="second-font">this is how you use this</p>
+	<div id="howTo" class="second-font">
+	<p class="second-font">This program uses <a href="https://en.wikipedia.org/wiki/A*_search_algorithm" target="_blank">A* (A star) algorithm</a>, a modification of Dijkstra's algorithm</p>
+	<p class="second-font">Select the start and end points, and click where you want to place them on the map</p>
+	<p class="second-font">Then select obstacles and draw the obstacles on the map</p>
+	<p class="second-font">Press simulate and watch the magic happen</p>
+	<p class="second-font">You can also toggle the animation on or off</p>
+	</div>
+	<div id="credits">
+	<p>-Akashneel Raychaudhuri</p>
+	<p>@akashneel_has_chocolate on instagram</p>
+	</div>
 	<script src="heapjs.js"></script>
 	<script src="pthfndjs.js"></script>
   </body>
