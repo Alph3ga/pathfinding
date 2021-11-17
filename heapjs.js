@@ -23,7 +23,7 @@ class Heap{
 	popTop(){
 		let t=this.arr[0];
 		this.swap(this.arr[0], this.arr[this.currentItemIndex-1])
-		this.arr[this.currentItemIndex]=null;
+		this.arr[this.currentItemIndex-1]=null;
 		this.currentItemIndex--;
 		if(this.currentItemIndex>0){
 			this.sortDown(this.arr[0]);
@@ -46,7 +46,7 @@ class Heap{
 				swapIndex=n.heapLeftChild();
 				
 				if(n.heapRightChild()< this.currentItemIndex){
-					if(this.compare(this.arr[n.heapLeftChild()],this.arr[n.heapRightChild()])<0){
+					if(this.compare(this.arr[n.heapLeftChild()],this.arr[n.heapRightChild()])>0){
 						swapIndex=n.heapRightChild();
 					}
 				}
@@ -86,7 +86,7 @@ class Heap{
 		if(m.fCost()> n.fCost()){
 			return 1;
 		}
-		else if(m.fCost()== n.fCost() && m.hCost < n.hCost){
+		else if(m.fCost()== n.fCost() && m.hCost > n.hCost){
 			return 1;
 		}
 		else if(m.fCost()== n.fCost() && m.hCost == n.hCost){
