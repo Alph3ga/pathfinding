@@ -343,7 +343,14 @@ function drawPath(){
 	}
 }
 
+function clearGraph(){
+	walls= new PSet();
+}
+
 function draw(){
+	if(screen.availHeight>screen.availWidth){
+		alert("Please rotate your phone :)");
+	}
 	drawGrid();
 	drawPath();
 	drawNodes();
